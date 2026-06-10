@@ -1,0 +1,37 @@
+<!--+-----------------+--------------+------+-----+---------+----------------+
+| Field           | Type         | Null | Key | Default | Extra          |
++-----------------+--------------+------+-----+---------+----------------+
+| nombre          | varchar(255) | NO   |     | NULL    |                |
+| fechaNacimiento | date         | NO   | MUL | NULL    |                |
+| NIF             | varchar(9)   | NO   | UNI | NULL    |                |
+| apellido1       | varchar(255) | NO   |     | NULL    |                |
+| apellido2       | varchar(255) | YES  |     | NULL    |                |
+| email           | varchar(255) | NO   | UNI | NULL    |                |
+| direccion       | varchar(255) | NO   |     | NULL    |                |
+| codigoPostal    | varchar(10)  | NO   |     | NULL    |                |
+| municipio       | varchar(255) | NO   |     | NULL    |                |
+| provincia       | varchar(255) | NO   |     | NULL    |                |
+| beca            | tinyint(1)   | NO   |     | NULL    |                |
+| id              | int(11)      | NO   | PRI | NULL    | auto_increment |
++-----------------+--------------+------+-----+---------+----------------+
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form action="/alumnos/becados/" method="get">
+        <label for="beca">Alumnos según beca:</label>
+        <!--el valor de la opción seleccionada se guarda en la variable 'beca', 
+        que se puede acceder en el endpoint correspondiente-->
+        <select name="beca" id="beca">
+            <option value="1">Sí</option>
+            <option value="0">No</option>
+        </select>
+        <button type="submit">Consultar</button>
+    </form>
+</body>
+</html>

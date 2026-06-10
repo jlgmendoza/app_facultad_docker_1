@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # Servicio de base de datos MySQL
+  db:
+    image: mysql:8.0
+    container_name: facultad_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${DB_NAME:-facultad}
+      MYSQL_USER: ${DB_USER:-facultad_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-facultad_pass}
+      MYSQL_PORT: ${DB_PORT:-3306}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 5
+      interval: 10s
+      start_period: 20s
+    networks:
+      - facultad_network
+    restart: unless-stopped
+    # En Linux, mejor usar unix socket
+    command: --default-authentication-plugin=mysql_native_password
+
+  # Servicio de la aplicación FastAPI
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: facultad_app
+    environment:
+      DATABASE_URL: mysql+pymysql://${DB_USER:-facultad_user}:${DB_PASSWORD:-facultad_pass}@db:3306/${DB_NAME:-facultad}
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: ${DB_USER:-facultad_user}
+      DB_PASSWORD: ${DB_PASSWORD:-facultad_pass}
+      DB_NAME: ${DB_NAME:-facultad}
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./templates:/app/templates:ro
+      - ./BBDD:/app/BBDD:ro
+      - ./main_facultad_3.py:/app/main_facultad_3.py
+    networks:
+      - facultad_network
+    restart: unless-stopped
+    command: uvicorn main_facultad_3:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  facultad_network:
+    driver: bridge
+
